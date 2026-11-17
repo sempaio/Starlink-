@@ -1,45 +1,46 @@
 # Handoff para Codex — STARLINK / Marco zero
 
-Data de referência: 17/11/2026  
+Data: 17/11/2026  
 Repositório: `sempaio/Starlink-`  
-Branch de produção: `main`
+Branch de referência: `main`
 
-## Estado conhecido (não misturar plataformas)
+## Baseline e arquivos de teste
 
-1. **Android — marco zero funcional:** `STARLINK-EVERYCINE-VISUAL-TESTE.apk`. O operador informou que esse APK está funcionando. É a baseline oficial para comparação. Preserve o arquivo original, assinatura, applicationId e comportamento; não o sobrescreva com uma build de teste.
-2. **Android — original de referência:** `Every Cine_v1.0.2(10002).apk`. Use somente para comparação com o app original.
-3. **Samsung TV / Tizen — QA 0.4.1:** o ZIP `STARLINK_TV_EveryCine_QA_0.4.1_PROJETO_E_TESTES.zip` contém `PROJETO_TIZEN/`, testes Node/Python e um WGT sem assinatura. A instrução QA 0.4.1 diz que o ID é `STLEC26001`, igual ao da QA 0.4.0 e diferente da QA 3.1 / QA 0.3.4. O operador reporta que essa versão não funciona no equipamento Samsung/Galaxy referido; reproduza e diagnostique antes de alterar.
-4. **Samsung TV / Tizen — QA 0.4.2:** `LEIA_PRIMEIRO_QA042.txt` descreve uma candidata WGT sem assinatura, com ajustes de abertura do player, foco, AVPlay e retorno à UI. Os testes JS locais são descritos como aprovados, mas o próprio arquivo diz que Chromium automatizado não iniciou e que não houve validação em hardware Samsung. Não tratar como funcional comprovada.
-5. **Produção:** não alterar o painel M81 de produção nem a Samsung QA 3.1 já validada.
+1. **Android — MARCO ZERO:** `STARLINK-EVERYCINE-VISUAL-TESTE.apk`. O operador informa que está funcionando. Preservar o binário original, assinatura, applicationId e comportamento. Não sobrescrever. O arquivo foi recebido localmente nesta tarefa, mas ainda não foi publicado como binário no repositório/Release.
+2. **Android — referência original:** `Every Cine_v1.0.2(10002).apk`. Usar para comparação, não como baseline funcional nova.
+3. **Samsung Smart TV / Tizen — QA 0.4.1:** ZIP `STARLINK_TV_EveryCine_QA_0.4.1_PROJETO_E_TESTES.zip`, com `PROJETO_TIZEN/`, testes Node/Python e WGT sem assinatura. O guia informa ID `STLEC26001`, igual à QA 0.4.0 e diferente da QA 3.1 / QA 0.3.4. Informa 13 testes Node de contrato/regressão + 5 grupos de verificações de marca/fluxos aprovados; AVPlay foi simulado, não testado fisicamente em TV.
+4. **Samsung Smart TV / Tizen — QA 0.4.2:** `STARLINK_TV_Samsung_QA042_NAO_ASSINADO.wgt` e `LEIA_PRIMEIRO_QA042.txt`. O guia descreve ajustes no início da reprodução, foco, AVPlay e restauração da UI; testes JS locais aprovados, Chromium automatizado não iniciou e hardware Samsung não foi validado. O guia diz que mantém o mesmo ID independente da QA 0.4.1, sem alterar o identificador da QA 3.1.
+5. **Produção:** não alterar painel M81 de produção, credenciais/endpoints nem a Samsung QA 3.1 validada.
 
-## Instrução de execução
+## Pedido para executar no Codex
 
-Copie este pedido para o Codex no repositório GitHub:
+Leia este documento e o README. Não altere `main` diretamente. Crie branch e worktree isolados.
 
 ```text
-Trabalhe no repositório sempio/Starlink-. Primeiro leia README.md e docs/CODEX_HANDOFF_MARCO_ZERO.md. Não faça alterações diretamente em main. Crie uma branch e worktree isolados, por exemplo codex/samsung-galaxy-qa-diagnostico.
+Repositório: sempaio/Starlink-
+Branch sugerida: codex/diagnostico-samsung-qa041
 
-Objetivo:
-- Registrar STARLINK-EVERYCINE-VISUAL-TESTE.apk como MARCO ZERO funcional Android, sem modificá-lo.
-- Investigar por que a QA 0.4.1 falha no dispositivo Samsung indicado pelo operador.
-- Antes de codificar, determine se o alvo é um telefone Samsung Galaxy (Android/APK) ou uma Samsung Smart TV (Tizen/WGT). Não misture APK Android com WGT Tizen. Se a descrição do hardware continuar ambígua, registre a dúvida e peça o modelo exato antes de qualquer alteração específica de plataforma.
-- Inspecione o projeto, manifesto/configuração, identificadores, assinatura/instalação, logs e fluxo de inicialização/reprodução. Diferencie falha de instalação, autenticação, navegação, player/codec e compatibilidade de dispositivo.
-- Compare qualquer mudança com o APK de marco zero e preserve as funções existentes. Não altere o painel M81 de produção, credenciais, endpoints ou Samsung QA 3.1 validada.
-- Reproduza a falha com testes automatizados e, quando disponível, teste no hardware real. Não declare reprodução validada apenas por simulação.
-- Faça uma correção pequena e focada, acrescente testes de regressão e documente claramente o que foi e não foi testado.
-- Gere artefato de teste separado, sem substituir o marco zero. Se for Tizen, explique que o WGT precisa ser assinado com certificado Samsung compatível antes da instalação.
-- Ao terminar, faça commit na branch, abra um Pull Request para main com diagnóstico, causa raiz, arquivos alterados, comandos/testes executados, limitações e instruções para instalar/testar. Não faça merge automaticamente.
+Antes de implementar:
+1. Confirme o alvo físico exato. O pacote QA 0.4.1 descrito nos arquivos é Tizen/WGT para Samsung Smart TV. O marco zero indicado é APK Android. Não confunda um telefone Samsung Galaxy (Android) com uma Samsung Smart TV (Tizen). Se o usuário estiver falando de telefone Galaxy, diagnostique o APK/Android separadamente e peça modelo/versão Android e logs; não tente instalar WGT nele.
+2. Leia o guia QA 0.4.1, o guia QA 0.4.2 e os testes/projeto do ZIP. Inspecione config.xml, app.js, catálogo, player AVPlay e scripts de teste.
+3. Reproduza a falha QA 0.4.1 e identifique se ocorre na instalação/assinatura, login, navegação, abertura do player, AVPlay, formato/codec ou retorno à interface. Colete logs e evidência. Não invente causa raiz.
+4. Compare mudanças com STARLINK-EVERYCINE-VISUAL-TESTE.apk como baseline Android, sem modificar/substituir o APK. Não copie comportamento Android para Tizen sem justificativa técnica.
+5. Faça correção pequena e isolada, testes de regressão e documentação. Não altere painel M81 de produção nem Samsung QA 3.1.
+6. Gere artefato candidato separado. WGT precisa de assinatura com certificado Samsung compatível antes da instalação; documente se a atualização preserva ID/dados.
+7. Teste em hardware real quando disponível. Diferencie claramente testes simulados/automatizados de reprodução física em TV. Se hardware não estiver disponível, marque como não validado.
+8. Commit apenas na branch isolada e abra PR para main com causa sustentada por evidência, arquivos alterados, comandos/testes, limitações e instruções de instalação. Não faça merge automaticamente.
 ```
 
-## Critérios de aceite
+## Aceite
 
-- [ ] APK de marco zero preservado e claramente identificado como baseline.
-- [ ] Plataforma e modelo de dispositivo confirmados; Android e Tizen tratados separadamente.
-- [ ] Causa da falha 0.4.1 sustentada por evidência (log/reprodução), não por suposição.
-- [ ] Testes de regressão cobrindo a falha corrigida.
-- [ ] Build candidata separada, com versão/identificador documentados.
+- [ ] APK indicado como marco zero, preservado; binário publicado em Release ou repositório se for necessário disponibilizá-lo no GitHub.
+- [ ] Modelo exato e plataforma confirmados (Android Galaxy ou Samsung TV/Tizen).
+- [ ] Falha 0.4.1 reproduzida ou limitação de reprodução explicitada.
+- [ ] Causa raiz sustentada por logs/evidência, não suposição.
+- [ ] Testes de regressão e build candidata separada.
+- [ ] Hardware real testado ou claramente marcado como não testado.
 - [ ] PR aberto para revisão; nenhuma alteração direta em produção.
 
-## Limites do material recebido
+## Observação sobre os binários
 
-Os nomes dos arquivos e as instruções QA 0.4.1/QA 0.4.2 foram recebidos nesta tarefa. O APK de marco zero e os pacotes binários não estão anexados como arquivos versionados neste repositório por este commit. Antes de afirmar que os binários foram publicados, faça upload deles em uma GitHub Release ou no repositório usando o fluxo apropriado para arquivos binários.
+Os APKs e WGTs fornecidos nesta tarefa estão no ambiente local da sessão. Os commits deste handoff atualizam documentação; não publicam os binários. Publique o APK de marco zero e os WGTs em GitHub Releases/artefatos apropriados antes de dizer que estão disponíveis para download pelo repositório.
